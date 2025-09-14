@@ -1,11 +1,23 @@
 streamlit
+python-dotenv
+
+# LangChain core + community integrations
 langchain
 langchain-community
 langchain-core
 langchain-groq
 langchain-huggingface
 langchain-text-splitters
+
+# Vector store
 chromadb
+
+# Embeddings
 sentence-transformers
-pypdf
-python-dotenv
+torch        # needed by sentence-transformers
+
+# PDF loading
+pypdf        # backend used by PyPDFLoader
+
+# Optional: for HuggingFace model downloads
+transformers
