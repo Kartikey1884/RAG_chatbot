@@ -21,3 +21,6 @@ pypdf        # backend used by PyPDFLoader
 
 # Optional: for HuggingFace model downloads
 transformers
+
+
+numpy<2.0
