@@ -14,7 +14,17 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader
+
+
+import csv
+def log_interaction(session_id, question, answer, latency):
+    with open("interactions.csv", "a", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow([session_id, question, answer, latency])
+
 import os
+
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -137,13 +147,48 @@ if api_key:
         # User input
         user_input = st.text_input("Your question:")
         if user_input:
+            import time
+            start_time = time.perf_counter()
+
             session_history = get_session_history(session_id)
             response = conversational_rag_chain.invoke(
                 {"input": user_input},
                 config={"configurable": {"session_id": session_id}},
             )
 
-            st.success("Assistant: " + response["answer"])
+            elapsed = time.perf_counter() - start_time
+            st.success(f"Assistant: {response['answer']}")
+            st.sidebar.write(f"Response time: {elapsed:.2f} sec")
+
+            # feedback = st.radio("Was this answer helpful?", ["👍 Yes", "👎 No"], index=None)
+            
+
+            feedback = st.radio(
+                "Was this answer helpful?",
+                ["👍 Yes", "👎 No"],
+                index=None,
+                key=f"feedback_{session_id}_{user_input}"
+            )
+
+
+            if feedback:
+                # # Log feedback
+                # with open("feedback_log.txt", "a", encoding="utf-8") as f:
+                #     f.write(f"{session_id},{user_input},{response['answer']},{feedback},{elapsed:.2f}\n")
+
+                # log_interaction(session_id, user_input, response["answer"], elapsed)
+
+                # If "No", generate an alternate response
+                if feedback == "👎 No":
+                    with open("feedback_log.txt", "a", encoding="utf-8") as f:
+                        f.write(f"{session_id},{user_input},{response['answer']},{feedback},{elapsed:.2f}\n")
+
+                    log_interaction(session_id, user_input, response["answer"], elapsed)
+                else:
+                    st.info("🙏 Thank you for your feedback!")
+
+
 
 else:
     st.warning("Please enter your Groq API Key in the sidebar.")
+
