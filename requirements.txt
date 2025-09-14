@@ -10,7 +10,7 @@ langchain-huggingface
 langchain-text-splitters
 
 # Vector store
-chromadb
+chromadb==0.5.0
 
 # Embeddings
 sentence-transformers
